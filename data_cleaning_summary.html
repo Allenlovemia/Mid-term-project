@@ -371,8 +371,8 @@ display: none;
 <pre class="r"><code>library(ggplot2)
 library(readxl)
 library(stringr)</code></pre>
-<div id="data-clean-for-floods" class="section level1">
-<h1>data clean for floods</h1>
+<div id="data-clean-for-fema" class="section level1">
+<h1>data clean for FEMA</h1>
 <pre class="r"><code>disaster_summaries&lt;-read.csv(&quot;DisasterDeclarationsSummaries.csv&quot;)
 fema_summaries&lt;-read.csv(&quot;FemaWebDisasterSummaries.csv&quot;)
 flood_data &lt;- disaster_summaries %&gt;%
@@ -424,8 +424,8 @@ glimpse(merged_data)</code></pre>
   summarise(n = n(), .groups = &#39;drop&#39;)  # Ensuring that the resulting data frame will be ungrouped</code></pre>
 <p>I merge the data of FEMA.</p>
 </div>
-<div id="data-clean-for-cencus" class="section level1">
-<h1>data clean for cencus</h1>
+<div id="data-clean-for-census" class="section level1">
+<h1>data clean for census</h1>
 <pre class="r"><code>total2020&lt;-read_excel(&quot;total_2020.xls&quot;)
 total2021&lt;-read_excel(&quot;total_2021.xls&quot;)
 total2020&lt;- total2020 %&gt;%
@@ -556,8 +556,8 @@ storm,flooding,landslides and mudslides,from the data given by FEMA.</p>
 <div id="which-state-has-the-highest-average-population-size-what-about-poverty-size" class="section level2">
 <h2>Which state has the highest average population size? what about
 poverty size?</h2>
-<div id="summary-for-cencus" class="section level3">
-<h3>summary for cencus</h3>
+<div id="summary-for-census" class="section level3">
+<h3>summary for census</h3>
 <pre class="r"><code>f_data_ordered_population &lt;- f_data %&gt;%
   arrange(desc(Mean_Total_Population))
 
@@ -596,8 +596,8 @@ ggplot(f_data_ordered_poverty, aes(x = reorder(state, Mean_poverty), y = Mean_po
 <div id="is-there-any-relationship-between-population-and-floods-number-group-by-state" class="section level2">
 <h2>Is there any relationship between population and floods number group
 by state?</h2>
-<div id="merge-cencus-and-fema" class="section level3">
-<h3>merge cencus and FEMA</h3>
+<div id="merge-census-and-fema" class="section level3">
+<h3>merge census and FEMA</h3>
 <pre class="r"><code>ggplot(state_summary, aes(x = Mean_Total_Population, y = n)) +
   geom_point() +
   geom_smooth(method = &quot;lm&quot;, se = FALSE) +
