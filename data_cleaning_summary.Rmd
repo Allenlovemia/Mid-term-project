@@ -15,7 +15,9 @@ library(ggplot2)
 library(readxl)
 library(stringr)
 ```
+
 # data clean for cencus
+
 ```{r}
 total2020<-read_excel("total_2020.xls")
 total2021<-read_excel("total_2021.xls")
@@ -78,6 +80,7 @@ f_data <- combined_data %>%
 ```
 
 # data clean for floods
+
 ```{r}
 disaster_summaries<-read.csv("DisasterDeclarationsSummaries.csv")
 fema_summaries<-read.csv("FemaWebDisasterSummaries.csv")
@@ -88,7 +91,9 @@ glimpse(merged_data)
 ```
 
 # EDA - Exploratory Data Analysis
-# Summary statistics for 
+
+# Summary statistics for flood(by state)
+
 ```{r warning=FALSE}
 ggplot(floods_by_state, aes(x = reorder(state, n), y = n, fill = n)) + # Fill based on the count
   geom_bar(stat = "identity") +
@@ -110,6 +115,31 @@ ggsave("number_of_floods_by_state_enhanced.png", width = 10, height = 8, dpi = 3
 
 ```
 
+# Summary statistics for flood(by reasons)
 
+```{r}
+# Group and summarise as before
+grouped_data <- merged_data %>%
+  group_by(declarationTitle) %>%
+  summarise(Count = n(), .groups = 'drop')
 
+# Filter for the top N declaration titles based on count
+top_n_titles <- grouped_data %>%
+  top_n(10, Count) # Adjust the number 10 to show more or fewer categories
 
+custom_colors <- c("#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
+                   "#e377c2", "#7f7f7f", "#bcbd22", "#17becf")
+
+ggplot(top_n_titles, aes(x = reorder(declarationTitle, Count), y = Count, fill = declarationTitle)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  scale_fill_manual(values = custom_colors) + # Use custom colors
+  theme_minimal() +
+  theme(legend.position = "none") +
+  labs(title = "Top Flood Declarations by Title", x = "Count", y = "Declaration Title") +
+  theme(plot.title = element_text(size = 14, face = "bold"),
+        axis.title.x = element_text(size = 12, face = "bold"),
+        axis.title.y = element_text(size = 12, face = "bold"),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10))
+```
