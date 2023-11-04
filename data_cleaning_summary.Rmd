@@ -16,7 +16,7 @@ library(readxl)
 library(stringr)
 ```
 
-# data clean for floods
+# data clean for FEMA
 
 ```{r}
 disaster_summaries<-read.csv("DisasterDeclarationsSummaries.csv")
@@ -33,7 +33,7 @@ floods_by_state <- merged_data %>%
 
 I merge the data of FEMA.
 
-# data clean for cencus
+# data clean for census
 
 ```{r}
 total2020<-read_excel("total_2020.xls")
@@ -141,7 +141,6 @@ ggplot(floods_by_state, aes(x = reorder(state, n), y = n, fill = n)) +
   guides(fill = FALSE)  # Remove the color guide
 # Save the enhanced plot
 ggsave("number_of_floods_by_state_enhanced.png", width = 10, height = 8, dpi = 300)
-
 ```
 
 Based on data,we can find KY state has the Most flood accidents.
@@ -181,7 +180,7 @@ Finally, I found the reason of floods mostly Severe storm,flooding,landslides an
 
 ## Which state has the highest average population size? what about poverty size? 
 
-### summary for cencus
+### summary for census
 
 ```{r}
 f_data_ordered_population <- f_data %>%
@@ -221,7 +220,7 @@ There has the same patterns with total population.
 
 ## Is there any relationship between population and floods number group by state?
 
-### merge cencus and FEMA
+### merge census and FEMA
 
 ```{r}
 ggplot(state_summary, aes(x = Mean_Total_Population, y = n)) +
