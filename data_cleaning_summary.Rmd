@@ -28,6 +28,21 @@ total2021<- total2021 %>%
   mutate(Geography = str_sub(Geography, 1, -4))%>%
 mutate(`Geographic Area Name` = str_replace(`Geographic Area Name`, ".*?,\\s*", ""))
 ```
+# data clean for floods
+
+```{r}
+disaster_summaries<-read.csv("DisasterDeclarationsSummaries.csv")
+fema_summaries<-read.csv("FemaWebDisasterSummaries.csv")
+flood_data <- disaster_summaries %>%
+  filter(incidentType == "Flood", between(fyDeclared, 2020, 2021))
+merged_data <- left_join(flood_data, fema_summaries, by = "disasterNumber")
+glimpse(merged_data)
+floods_by_state <- merged_data %>%
+  group_by(state) %>%
+  summarise(n = n(), .groups = 'drop')  # Ensuring that the resulting data frame will be ungrouped
+
+```
+
 # I calculate the average population of all cities in each state
 ```{r}
 total2020_processed <- total2020 %>%
@@ -82,16 +97,7 @@ state_summary <- merge(floods_by_state, f_data, by = "state")
 
 ```
 
-# data clean for floods
 
-```{r}
-disaster_summaries<-read.csv("DisasterDeclarationsSummaries.csv")
-fema_summaries<-read.csv("FemaWebDisasterSummaries.csv")
-flood_data <- disaster_summaries %>%
-  filter(incidentType == "Flood", between(fyDeclared, 2020, 2021))
-merged_data <- left_join(flood_data, fema_summaries, by = "disasterNumber")
-glimpse(merged_data)
-```
 ```{r}
 # Assuming merged_data and f_data are already in your R environment
 
@@ -108,9 +114,6 @@ write.csv(f_data, "f_data.csv", row.names = FALSE)
 # Summary statistics for FEMA(by state)
 
 ```{r warning=FALSE}
-floods_by_state <- merged_data %>%
-  group_by(state) %>%
-  summarise(n = n(), .groups = 'drop')  # Ensuring that the resulting data frame will be ungrouped
 
 # Now, you can plot the data
 ggplot(floods_by_state, aes(x = reorder(state, n), y = n, fill = n)) +
