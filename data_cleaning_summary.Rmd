@@ -131,7 +131,7 @@ ggplot(floods_by_state, aes(x = reorder(state, n), y = n, fill = n)) +
 ggsave("number_of_floods_by_state_enhanced.png", width = 10, height = 8, dpi = 300)
 
 ```
-
+Based on data,we can find KY state has the Most flood accidents.
 # Summary statistics for FEMA(by reasons)
 
 ```{r}
@@ -160,6 +160,7 @@ ggplot(top_n_titles, aes(x = reorder(declarationTitle, Count), y = Count, fill =
         axis.text.x = element_text(size = 10),
         axis.text.y = element_text(size = 10))
 ```
+Finally, I found the reason of floods mostly Severe storm,flooding,landslides and mudslides,from the data given by FEMA.
 #  cencus
 ```{r}
 f_data_ordered_population <- f_data %>%
@@ -176,6 +177,7 @@ ggplot(f_data_ordered_population, aes(x = reorder(state, Mean_Total_Population),
   theme(axis.text.x = element_text(angle = 90, hjust = 1),
         plot.title = element_text(hjust = 0.5))
 ```
+based on the data of total population,I find AZ has the highest mean value of total population by state. 
 ```{r}
 f_data_ordered_poverty <- f_data %>%
   arrange(desc(Mean_poverty))
@@ -191,7 +193,7 @@ ggplot(f_data_ordered_poverty, aes(x = reorder(state, Mean_poverty), y = Mean_po
   theme(axis.text.x = element_text(angle = 90, hjust = 1),
         plot.title = element_text(hjust = 0.5))
 ```
-
+There has the same patterns with total population.
 # merge cencus and FEMA
 ```{r}
 ggplot(state_summary, aes(x = Mean_Total_Population, y = n)) +
@@ -201,4 +203,4 @@ ggplot(state_summary, aes(x = Mean_Total_Population, y = n)) +
        x = "Mean Total Population",
        y = "Number of Floods")
 ```
-
+So finally I don't find there has a relationship between mean total population and number of floods.
