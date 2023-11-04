@@ -1,0 +1,55 @@
+---
+title: "Mid term EDA"
+author: "Yingmai Chen"
+date: "2023-11-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+```
+```{r}
+disaster_summaries<-read.csv("DisasterDeclarationsSummaries.csv")
+fema_summaries<-read.csv("FemaWebDisasterSummaries.csv")
+# Filter for floods in the years 2020-2021
+flood_data <- disaster_summaries %>%
+  filter(incidentType == "Flood", between(fyDeclared, 2020, 2021))
+
+# Assuming 'disasterNumber' is a common key, merge the datasets
+merged_data <- left_join(flood_data, fema_summaries, by = "disasterNumber")
+glimpse(merged_data)
+```
+
+# EDA - Exploratory Data Analysis
+# Summary statistics
+```{r}
+ggplot(floods_by_state, aes(x = reorder(state, n), y = n, fill = n)) + # Fill based on the count
+  geom_bar(stat = "identity") +
+  coord_flip() + # Flip coordinates for horizontal bars
+  scale_fill_viridis_c() + # Use the viridis color scale for a visually appealing palette
+  labs(title = "Number of Flood Events by State", x = "State", y = "Number of Events") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5), # Center the plot title
+    axis.title.x = element_text(face = "bold"), # Bold the x-axis title
+    axis.title.y = element_text(face = "bold"), # Bold the y-axis title
+    legend.title = element_blank(), # Remove the legend title
+    legend.position = "bottom" # Move the legend to the bottom
+  ) +
+  guides(fill = FALSE) # Remove the color guide if not necessary
+
+# Save the enhanced plot
+ggsave("number_of_floods_by_state_enhanced.png", width = 10, height = 8, dpi = 300)
+
+```
+
+
+
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
