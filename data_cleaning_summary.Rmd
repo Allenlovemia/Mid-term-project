@@ -15,16 +15,69 @@ library(ggplot2)
 library(readxl)
 library(stringr)
 ```
-
+# data clean for cencus
 ```{r}
 total2020<-read_excel("total_2020.xls")
 total2021<-read_excel("total_2021.xls")
 total2020<- total2020 %>%
-  mutate(Geography = str_sub(Geography, 1, -3))
+  mutate(Geography = str_sub(Geography, 1, -4))%>%
+ mutate(`Geographic Area Name` = str_replace(`Geographic Area Name`, ".*?,\\s*", ""))
 total2021<- total2021 %>%
-  mutate(Geography = str_sub(Geography, 1, -3))
+  mutate(Geography = str_sub(Geography, 1, -4))%>%
+mutate(`Geographic Area Name` = str_replace(`Geographic Area Name`, ".*?,\\s*", ""))
 ```
 
+```{r}
+total2020_processed <- total2020 %>%
+  mutate(Geography = str_sub(Geography, 1, -4)) %>%
+  mutate(`Geographic Area Name` = str_replace(`Geographic Area Name`, ".*?,\\s*", ""))
+
+total2021_processed <- total2021 %>%
+  mutate(Geography = str_sub(Geography, 1, -4)) %>%
+  mutate(`Geographic Area Name` = str_replace(`Geographic Area Name`, ".*?,\\s*", ""))
+
+# Assuming 'Total Population' and 'poverty' are column names in your data
+# Combine the two data sets and calculate mean for 'Total Population' and 'poverty'
+combined_data <- bind_rows(total2020_processed, total2021_processed, .id = "year") %>%
+  group_by(`Geographic Area Name`) %>%
+  summarise(
+    Mean_Total_Population = mean(`Total population`, na.rm = TRUE),
+    Mean_poverty = mean(poverty, na.rm = TRUE),
+    .groups = 'drop' 
+  )
+```
+
+```{r}
+us_state_abbreviations <- data.frame(
+  State = c("Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado",
+            "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", 
+            "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", 
+            "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", 
+            "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", 
+            "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", 
+            "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", 
+            "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", 
+            "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"),
+  Abbreviation = c("AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", 
+                   "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", 
+                   "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", 
+                   "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", 
+                   "VA", "WA", "WV", "WI", "WY")
+)
+
+combined_data <- combined_data %>%
+  left_join(us_state_abbreviations, by = c("Geographic Area Name" = "State")) %>%
+  # Remove the full state name column if you don't need it
+  select(-`Geographic Area Name`) %>%
+  # Rename Abbreviation to State or another name if you prefer
+  rename(State = Abbreviation)
+
+f_data <- combined_data %>%
+  filter(State %in% c("KY", "ND", "WA", "WV", "TX", "LA", "TN", "OR", "WI", "AZ", "VT", "PR", "HI"))
+
+```
+
+# data clean for floods
 ```{r}
 disaster_summaries<-read.csv("DisasterDeclarationsSummaries.csv")
 fema_summaries<-read.csv("FemaWebDisasterSummaries.csv")
@@ -35,7 +88,7 @@ glimpse(merged_data)
 ```
 
 # EDA - Exploratory Data Analysis
-# Summary statistics
+# Summary statistics for 
 ```{r warning=FALSE}
 ggplot(floods_by_state, aes(x = reorder(state, n), y = n, fill = n)) + # Fill based on the count
   geom_bar(stat = "identity") +
