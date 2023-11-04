@@ -28,7 +28,7 @@ total2021<- total2021 %>%
   mutate(Geography = str_sub(Geography, 1, -4))%>%
 mutate(`Geographic Area Name` = str_replace(`Geographic Area Name`, ".*?,\\s*", ""))
 ```
-
+# I calculate the average population of all cities in each state
 ```{r}
 total2020_processed <- total2020 %>%
   mutate(Geography = str_sub(Geography, 1, -4)) %>%
@@ -76,6 +76,9 @@ combined_data <- combined_data %>%
 
 f_data <- combined_data %>%
   filter(State %in% c("KY", "ND", "WA", "WV", "TX", "LA", "TN", "OR", "WI", "AZ", "VT", "PR", "HI"))
+f_data <- f_data %>%
+  rename(state = State)
+state_summary <- merge(floods_by_state, f_data, by = "state")
 
 ```
 
@@ -89,33 +92,47 @@ flood_data <- disaster_summaries %>%
 merged_data <- left_join(flood_data, fema_summaries, by = "disasterNumber")
 glimpse(merged_data)
 ```
+```{r}
+# Assuming merged_data and f_data are already in your R environment
+
+# Write merged_data to a CSV file
+write.csv(merged_data, "merged_data.csv", row.names = FALSE)
+
+# Write f_data to a CSV file (replace f_data with the actual name of your dataframe)
+write.csv(f_data, "f_data.csv", row.names = FALSE)
+
+```
 
 # EDA - Exploratory Data Analysis
 
-# Summary statistics for flood(by state)
+# Summary statistics for FEMA(by state)
 
 ```{r warning=FALSE}
-ggplot(floods_by_state, aes(x = reorder(state, n), y = n, fill = n)) + # Fill based on the count
+floods_by_state <- merged_data %>%
+  group_by(state) %>%
+  summarise(n = n(), .groups = 'drop')  # Ensuring that the resulting data frame will be ungrouped
+
+# Now, you can plot the data
+ggplot(floods_by_state, aes(x = reorder(state, n), y = n, fill = n)) +
   geom_bar(stat = "identity") +
   coord_flip() + # Flip coordinates for horizontal bars
-  scale_fill_viridis_c() + # Use the viridis color scale for a visually appealing palette
+  scale_fill_viridis_c() + # Use the viridis color scale
   labs(title = "Number of Flood Events by State", x = "State", y = "Number of Events") +
   theme_minimal() +
   theme(
-    plot.title = element_text(hjust = 0.5), # Center the plot title
-    axis.title.x = element_text(face = "bold"), # Bold the x-axis title
-    axis.title.y = element_text(face = "bold"), # Bold the y-axis title
-    legend.title = element_blank(), # Remove the legend title
-    legend.position = "bottom" # Move the legend to the bottom
+    plot.title = element_text(hjust = 0.5),
+    axis.title.x = element_text(face = "bold"),
+    axis.title.y = element_text(face = "bold"),
+    legend.title = element_blank(),
+    legend.position = "bottom"
   ) +
-  guides(fill = FALSE) # Remove the color guide if not necessary
-
+  guides(fill = FALSE)  # Remove the color guide
 # Save the enhanced plot
 ggsave("number_of_floods_by_state_enhanced.png", width = 10, height = 8, dpi = 300)
 
 ```
 
-# Summary statistics for flood(by reasons)
+# Summary statistics for FEMA(by reasons)
 
 ```{r}
 # Group and summarise as before
@@ -143,3 +160,52 @@ ggplot(top_n_titles, aes(x = reorder(declarationTitle, Count), y = Count, fill =
         axis.text.x = element_text(size = 10),
         axis.text.y = element_text(size = 10))
 ```
+#  cencus
+```{r}
+f_data_ordered_population <- f_data %>%
+  arrange(desc(Mean_Total_Population))
+
+ggplot(f_data_ordered_population, aes(x = reorder(state, Mean_Total_Population), y = Mean_Total_Population, fill = Mean_Total_Population)) + 
+  geom_bar(stat = "identity") +
+  coord_flip() + # Flip coordinates for horizontal bars
+  scale_fill_viridis_c(option = "C") + # Use a viridis color scale for a visually appealing palette
+  labs(title = "Mean Total Population by State",
+       x = "State", 
+       y = "Mean Total Population") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        plot.title = element_text(hjust = 0.5))
+```
+```{r}
+f_data_ordered_poverty <- f_data %>%
+  arrange(desc(Mean_poverty))
+
+ggplot(f_data_ordered_poverty, aes(x = reorder(state, Mean_poverty), y = Mean_poverty, fill = Mean_poverty)) + 
+  geom_bar(stat = "identity") +
+  coord_flip() + # Flip coordinates for horizontal bars
+  scale_fill_viridis_c(option = "M") + # Use a viridis color scale for a visually appealing palette
+  labs(title = "Mean Poverty by State",
+       x = "State", 
+       y = "Mean Poverty") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        plot.title = element_text(hjust = 0.5))
+```
+
+# merge cencus and FEMA
+```{r}
+# Assuming merged_data has the state information in a column named 'state'
+# and the total population for each flood event in a column named 'totalPopulation'
+
+# Calculate the number of floods per state
+floods_by_state <- merged_data %>%
+  count(state, name = "number_of_floods")
+# Analyze the relationship with a scatter plot
+ggplot(state_summary, aes(x = Mean_Total_Population, y = number_of_floods)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Relationship Between Number of Floods and Mean Total Population by State",
+       x = "Mean Total Population",
+       y = "Number of Floods")
+```
+
