@@ -12,15 +12,24 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(ggplot2)
+library(readxl)
+library(stringr)
 ```
+
+```{r}
+total2020<-read_excel("total_2020.xls")
+total2021<-read_excel("total_2021.xls")
+total2020<- total2020 %>%
+  mutate(Geography = str_sub(Geography, 1, -3))
+total2021<- total2021 %>%
+  mutate(Geography = str_sub(Geography, 1, -3))
+```
+
 ```{r}
 disaster_summaries<-read.csv("DisasterDeclarationsSummaries.csv")
 fema_summaries<-read.csv("FemaWebDisasterSummaries.csv")
-# Filter for floods in the years 2020-2021
 flood_data <- disaster_summaries %>%
   filter(incidentType == "Flood", between(fyDeclared, 2020, 2021))
-
-# Assuming 'disasterNumber' is a common key, merge the datasets
 merged_data <- left_join(flood_data, fema_summaries, by = "disasterNumber")
 glimpse(merged_data)
 ```
@@ -51,5 +60,3 @@ ggsave("number_of_floods_by_state_enhanced.png", width = 10, height = 8, dpi = 3
 
 
 
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
