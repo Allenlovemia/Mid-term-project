@@ -194,14 +194,7 @@ ggplot(f_data_ordered_poverty, aes(x = reorder(state, Mean_poverty), y = Mean_po
 
 # merge cencus and FEMA
 ```{r}
-# Assuming merged_data has the state information in a column named 'state'
-# and the total population for each flood event in a column named 'totalPopulation'
-
-# Calculate the number of floods per state
-floods_by_state <- merged_data %>%
-  count(state, name = "number_of_floods")
-# Analyze the relationship with a scatter plot
-ggplot(state_summary, aes(x = Mean_Total_Population, y = number_of_floods)) +
+ggplot(state_summary, aes(x = Mean_Total_Population, y = n)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE) +
   labs(title = "Relationship Between Number of Floods and Mean Total Population by State",
