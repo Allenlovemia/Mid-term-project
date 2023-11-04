@@ -36,7 +36,7 @@ glimpse(merged_data)
 
 # EDA - Exploratory Data Analysis
 # Summary statistics
-```{r}
+```{r warning=FALSE}
 ggplot(floods_by_state, aes(x = reorder(state, n), y = n, fill = n)) + # Fill based on the count
   geom_bar(stat = "identity") +
   coord_flip() + # Flip coordinates for horizontal bars
