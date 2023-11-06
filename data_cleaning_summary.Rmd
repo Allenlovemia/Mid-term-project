@@ -231,4 +231,4 @@ ggplot(state_summary, aes(x = Mean_Total_Population, y = n)) +
        y = "Number of Floods")
 ```
 
-So finally I don't find there has a relationship between mean total population and number of floods.
+So finally I don't find there has a relationship between mean total population and frequency of floods.
