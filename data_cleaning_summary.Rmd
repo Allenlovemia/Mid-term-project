@@ -115,6 +115,26 @@ write.csv(merged_data, "merged_data.csv", row.names = FALSE)
 write.csv(f_data, "f_data.csv", row.names = FALSE)
 
 ```
+# data clean for storm
+```{r warning=FALSE}
+df_2020 <- read_csv('2020storm.csv')
+df_2021 <- read_csv('2021storm.csv')
+merged_df <- full_join(df_2020, df_2021, by = intersect(names(df_2020), names(df_2021)))
+flood_events <- merged_df %>% filter(grepl('Flood', EVENT_TYPE))%>%
+  select(BEGIN_TIME,END_TIME,MONTH_NAME,STATE,DAMAGE_PROPERTY,DAMAGE_CROPS)
+convert_damage <- function(damage) {
+  damage <- gsub("K", "", damage)
+  damage <- gsub("M", "", damage)
+  numeric_damage <- as.numeric(damage)
+  ifelse(grepl("K", damage), numeric_damage * 1e3,
+         ifelse(grepl("M", damage), numeric_damage * 1e6,
+                numeric_damage))
+}
+flood_events <- flood_events %>%
+  mutate(DAMAGE_PROPERTY = convert_damage(DAMAGE_PROPERTY),
+         DAMAGE_CROPS = convert_damage(DAMAGE_CROPS),
+         totaldamage = DAMAGE_PROPERTY + DAMAGE_CROPS)
+```
 
 # EDA - Exploratory Data Analysis
 
@@ -231,4 +251,11 @@ ggplot(state_summary, aes(x = Mean_Total_Population, y = n)) +
        y = "Number of Floods")
 ```
 
-So finally I don't find there has a relationship between mean total population and frequency of floods.For this part,maybe due to the dataset of FEMA is small after I merged,I don't explore the relationship between population with it,so for the next part,I believe there must exist a relationship between storm and flood.Before start the EDA for the next part,I just summarize what I find in these first 2 data,that is during 2020 and 2021,the main cause of flood is storm,and KY state is the most frequenst one.
+So finally I don't find there has a relationship between mean total population and frequency of floods.For this part,maybe due to the dataset of FEMA is small after I merged,I don't explore the relationship between population with it,so for the next part,I believe there must exist a relationship between storm and flood,so I will use the data of storm2020 and 2021 to analysis.Before start the EDA for the next part,I just summarize what I find in these first 2 data,that is during 2020 and 2021,the main cause of flood is storm,and KY state is the most frequently one.
+
+### summary for storm
+
+```{r}
+
+```
+
