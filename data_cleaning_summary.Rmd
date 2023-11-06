@@ -15,6 +15,7 @@ library(ggplot2)
 library(readxl)
 library(stringr)
 library(statebins)
+library(RColorBrewer)
 ```
 
 # data clean for FEMA
@@ -237,6 +238,7 @@ So finally I don't find there has a relationship between mean total population a
 
 ### summary for storm
 
+I found that the main cause of flood is storm,so I  use the data of storm to do more eda.
 ## Which state has suffered the most damage due to flooding, and what is the damage like in each state?
 ```{r}
 state_damage <- flood_events %>%
@@ -281,4 +283,25 @@ for (i in 1:num_plots) {
 plot_list
 ```
 
-I think the New York state suffer the most damage due to flood during2020 to 2021,and I just seperate state by the amount of damage for 6 part to make it more visualization,to find more information about the damage,I just repeat the steps above to find about the damage for crops and property for each state.
+I think the New York state suffer the most damage due to flood during2020 to 2021,and I just seperate state by the amount of damage for 6 part to make it more visualization.So,for the next part,I want to find which month has the most damage due to floods.
+
+## Which month has suffered the most damage due to flooding, and what is the damage like in each month?
+
+```{r}
+monthly_damage <- flood_events %>%
+  group_by(MONTH_NAME) %>%
+  summarise(total_damage = sum(totaldamage, na.rm = TRUE)) %>%
+  arrange(match(MONTH_NAME, month.name)) # Arrange by month order
+ggplot(monthly_damage, aes(x = MONTH_NAME, y = total_damage, fill = MONTH_NAME)) +
+  geom_bar(stat = "identity") +
+  scale_fill_brewer(palette = "Paired") + # Use a color scale that is distinct for each month
+  labs(x = "Month", y = "Total Damage$K (USD)", title = "Total Monthly Damage Due to Floods") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1), # Angle the month names for better readability
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.5) # Bold and center the plot title
+  )
+```
+
+I find that the month with the most losses due to floods is July,and June,August,September also suffers from a lot of losses,so it meets my expectations,the loss of flood disaster casused by rainy seanson is relatively large.So,for the next part,I want to find which time occurs most frequently during the day.
+
