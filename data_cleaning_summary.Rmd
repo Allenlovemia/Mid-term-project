@@ -305,3 +305,8 @@ ggplot(monthly_damage, aes(x = MONTH_NAME, y = total_damage, fill = MONTH_NAME))
 
 I find that the month with the most losses due to floods is July,and June,August,September also suffers from a lot of losses,so it meets my expectations,the loss of flood disaster casused by rainy seanson is relatively large.So,for the next part,I want to find which time occurs most frequently during the day.
 
+```{r}
+
+```
+
+
