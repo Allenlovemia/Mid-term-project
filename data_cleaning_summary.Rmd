@@ -14,6 +14,7 @@ library(tidyverse)
 library(ggplot2)
 library(readxl)
 library(stringr)
+library(statebins)
 ```
 
 # data clean for FEMA
@@ -198,7 +199,7 @@ ggplot(top_n_titles, aes(x = reorder(declarationTitle, Count), y = Count, fill =
 
 Finally, I found the reason of floods mostly Severe storm,flooding,landslides and mudslides,from the data given by FEMA. 
 
-## Which state has the highest average population size? what about poverty size? 
+## Which state has the highest average population size? 
 
 ### summary for census
 
@@ -219,25 +220,6 @@ ggplot(f_data_ordered_population, aes(x = reorder(state, Mean_Total_Population),
 ```
 
 based on the data of total population,I find AZ has the highest mean value of total population by state.
-
-```{r}
-f_data_ordered_poverty <- f_data %>%
-  arrange(desc(Mean_poverty))
-
-ggplot(f_data_ordered_poverty, aes(x = reorder(state, Mean_poverty), y = Mean_poverty, fill = Mean_poverty)) + 
-  geom_bar(stat = "identity") +
-  coord_flip() + # Flip coordinates for horizontal bars
-  scale_fill_viridis_c(option = "M") + # Use a viridis color scale for a visually appealing palette
-  labs(title = "Mean Poverty by State",
-       x = "State", 
-       y = "Mean Poverty") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1),
-        plot.title = element_text(hjust = 0.5))
-```
-
-There has the same patterns with total population.
-
 ## Is there any relationship between population and floods number group by state?
 
 ### merge census and FEMA
@@ -255,7 +237,48 @@ So finally I don't find there has a relationship between mean total population a
 
 ### summary for storm
 
+## Which state has suffered the most damage due to flooding, and what is the damage like in each state?
 ```{r}
+state_damage <- flood_events %>%
+  group_by(STATE) %>%
+  summarise(total_damage = sum(totaldamage, na.rm = TRUE)) %>%
+  arrange(desc(total_damage))
 
+# Calculate the number of plots needed (e.g., if there are too many states for one plot)
+num_plots <- ceiling(nrow(state_damage) / 10) # Adjust the divisor as necessary for readability
+
+# Create a list to hold the plot objects
+plot_list <- vector("list", num_plots)
+
+# Split the data into multiple parts and create a plot for each
+for (i in 1:num_plots) {
+  # Subset the data for the current plot
+  subset_data <- state_damage[((i-1)*10 + 1):(i*10), ]
+  
+  # Generate the plot for the current subset
+  plot_list[[i]] <- ggplot(subset_data, aes(x = STATE, y = total_damage, fill = total_damage)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    scale_fill_viridis_c() + # Use a viridis color scale for the bars
+    labs(x = "State", y = "Total Damage per Thousand (USD)", title = paste("Total Damage by State Due to Floods - Part", i)) +
+    theme_minimal() +
+    theme(
+      text = element_text(size = 12),
+      axis.title.x = element_text(face = "bold", size = 12),
+      axis.title.y = element_text(face = "bold", size = 12),
+      plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+      axis.text.x = element_text(angle = 45, hjust = 1), # Rotate x axis labels for better readability
+      panel.grid.major.x = element_blank(), # Remove vertical grid lines for a cleaner look
+      panel.grid.minor.x = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(colour = "black")
+    )
+  
+  # Save the current plot to a file
+  ggsave(paste("state_damage_plot_part", i, ".png", sep = ""), plot_list[[i]], width = 12, height = 7)
+}
+
+# Return the list of plots to display in R environment
+plot_list
 ```
 
+I think the New York state suffer the most damage due to flood during2020 to 2021,and I just seperate state by the amount of damage for 6 part to make it more visualization,to find more information about the damage,I just repeat the steps above to find about the damage for crops and property for each state.
