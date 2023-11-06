@@ -339,3 +339,34 @@ print(frequency_plot)
 ```
 
 In general,it is most frequent in the afternoon.
+
+## which time occurs most damage during the day?
+```{r}
+begin_time_damage <- flood_events %>%
+  group_by(BEGIN_TIME) %>%
+  summarise(total_damage = sum(totaldamage, na.rm = TRUE)) %>%
+  arrange(desc(total_damage)) 
+ggplot(begin_time_damage, aes(x = BEGIN_TIME, y = total_damage)) +
+  geom_bar(stat = "identity", aes(fill = total_damage)) +
+  scale_fill_gradient(low = "yellow",high="blue") + # Beautiful gradient from low (blue) to high (red) values
+  labs(x = "Begin Time (Hour)", y = "Total Damage$K (USD)", title = "Total Damage by Begin Time") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+    axis.title.x = element_text(face = "bold", size = 14),
+    axis.title.y = element_text(face = "bold", size = 14),
+    axis.text.x = element_text(angle = 45, vjust = 1),
+    axis.text.y = element_text(size = 12),
+    legend.title = element_blank(), # Remove legend title for a cleaner look
+    legend.position = "right"
+  ) +
+  guides(fill = guide_legend(title.position = "top", title.hjust = 0.5))
+
+
+
+```
+
+I found that during the day time,16h has the highest total damage.
+### summarize
+
+In general,I do the analysis for floods during 2020 and 2021 to the FEMA and CENCUS part,I find that KY state has the highest frequency among the state,and find the most cause of the floods is storm,there don't exist some relationship between populations and floods frequency,then,I use the data of storm to make a deeper understanding of data,I use storm to analysis and find New York state has the highest amount of damage,and then I find among all the months,July has the highest amount of damage,during the day time,16 o'clock has the highest amount of damage and 16 o'clock is also the most frequency time.
