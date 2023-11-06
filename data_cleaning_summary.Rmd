@@ -231,4 +231,4 @@ ggplot(state_summary, aes(x = Mean_Total_Population, y = n)) +
        y = "Number of Floods")
 ```
 
-So finally I don't find there has a relationship between mean total population and frequency of floods.
+So finally I don't find there has a relationship between mean total population and frequency of floods.For this part,maybe due to the dataset of FEMA is small after I merged,I don't explore the relationship between population with it,so for the next part,I believe there must exist a relationship between storm and flood.Before start the EDA for the next part,I just summarize what I find in these first 2 data,that is during 2020 and 2021,the main cause of flood is storm,and KY state is the most frequenst one.
